@@ -10,6 +10,8 @@ public class Satellite : MonoBehaviour
     // const float G = 6.674e-11f; // m^3 / kg * s^2
     // const float PlanetMass = 5.972e24f; // kg
 
+    public Universe universe;
+
     public MassBody ReferenceBody;
 
     // Given Values
@@ -36,14 +38,15 @@ public class Satellite : MonoBehaviour
     void Start()
     {
         StandardGravitationalParameter = Constants.GRAVITATIONAL_CONSTANT * ReferenceBody.Mass;
+        transform.eulerAngles = new Vector3(0f, 0f, -90f);
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
         // POSITIONING
         MeanAngularMotion = Mathf.Sqrt(StandardGravitationalParameter / Mathf.Pow(SemiMajorAxis, 3));
-        MeanAnomaly = MeanAngularMotion * ((Time.time * Constants.TIME_MULTIPLIER) - MeanLongitude); // <-- 0.000001f is a time-slow factor. sim goes TOO FAST!
+        MeanAnomaly = MeanAngularMotion * ((universe.CurrentTime) - MeanLongitude); // <-- 0.000001f is a time-slow factor. sim goes TOO FAST!
         
         // Find the eccentric anomaly iteratively to within some error.
         float E_this = MeanAnomaly; // Initial guess for EccentricAnomaly.
@@ -73,6 +76,8 @@ public class Satellite : MonoBehaviour
         transform.position = new Vector3(x / 1000f, y / 1000f, z / 1000f) + ReferenceBody.transform.position;
     
         // ROTATION
+        transform.Rotate(0f, 30f * universe.sim_time_multiplier * Time.deltaTime, 0f);
+        // transform.eulerAngles = new Vector3(transform.eulerAngles.x + 0.5f, transform.eulerAngles.y + 0.5f, transform.eulerAngles.z + 0.5f);
         // transform.eulerAngles = new Vector3(0f, transform.eulerAngles.y + (18f * Time.deltaTime), 0f);
         // transform.eulerAngles = new Vector3(transform.eulerAngles.x + (18f * Time.deltaTime), 0f, 90f);
         // Debug.Log(transform.eulerAngles.x);
